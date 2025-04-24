@@ -18,4 +18,15 @@ async def make_call(request: CallRequest):
         twiml=f"<Response><Say voice='alice' language='pt-BR'>{request.message}</Say></Response>"
     )
     return {"status": "ligando", "sid": call.sid}
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
+app = FastAPI()
+
+# Servir o HTML diretamente na raiz
+@app.get("/", include_in_schema=False)
+async def root():
+    return FileResponse("static/valicaller_render.html")
+
+# Tornar a pasta 'static' acessível
+app.mount("/static", StaticFiles(directory="static"), name="static")
