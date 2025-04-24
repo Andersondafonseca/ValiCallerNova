@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from twilio.rest import Client
 import os
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 app = FastAPI()
 
@@ -18,10 +20,6 @@ async def make_call(request: CallRequest):
         twiml=f"<Response><Say voice='alice' language='pt-BR'>{request.message}</Say></Response>"
     )
     return {"status": "ligando", "sid": call.sid}
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-
-app = FastAPI()
 
 # Servir o HTML diretamente na raiz
 @app.get("/", include_in_schema=False)
