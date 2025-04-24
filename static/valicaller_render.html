@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Chamada da Vali</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #0a0a0a; color: #fff; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        h1 { color: #8ae; }
+        input, textarea, button { width: 90%; max-width: 400px; margin: 10px 0; padding: 10px; font-size: 16px; border: none; border-radius: 5px; }
+        input, textarea { background-color: #222; color: #fff; }
+        button { background-color: #1e90ff; color: white; cursor: pointer; }
+        button:hover { background-color: #0077cc; }
+        .status { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Chamada da Vali</h1>
+    <input type="text" id="to" value="+5582999361632" placeholder="Número de telefone">
+    <textarea id="message" rows="4" placeholder="Mensagem para falar...">Olá Mr. Anderson. Aqui é a Vali. Essa é sua chamada de boas-vindas.</textarea>
+    <button onclick="makeCall()">Ligar</button>
+    <div class="status" id="status"></div>
+
+    <script>
+        async function makeCall() {
+            const to = document.getElementById("to").value;
+            const message = document.getElementById("message").value;
+            const statusEl = document.getElementById("status");
+
+            statusEl.innerText = "Chamando...";
+
+            try {
+                const response = await fetch("https://valicaller.onrender.com/call", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ to, message })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    statusEl.innerText = "Ligação iniciada! SID: " + data.sid;
+                } else {
+                    const err = await response.text();
+                    statusEl.innerText = "Erro: " + err;
+                }
+            } catch (e) {
+                statusEl.innerText = "Erro de conexão: " + e.message;
+            }
+        }
+    </script>
+</body>
+</html>
