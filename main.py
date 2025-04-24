@@ -1,30 +1,35 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from twilio.rest import Client
-import os
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+import os
 
 app = FastAPI()
 
+# Model da requisição
 class CallRequest(BaseModel):
     to: str
     message: str
 
+# Endpoint da chamada
 @app.post("/call")
 async def make_call(request: CallRequest):
-    client = Client(os.getenv("TWILIO_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
-    call = client.calls.create(
-        to=request.to,
-        from_=os.getenv("TWILIO_NUMBER"),
-        twiml=f"<Response><Say voice='alice' language='pt-BR'>{request.message}</Say></Response>"
-    )
-    return {"status": "ligando", "sid": call.sid}
+    try:
+        client = Client(os.getenv("TWILIO_SID"), os.getenv("TWILIO_AUTH_TOKEN"))
+        call = client.calls.create(
+            to=request.to,
+            from_=os.getenv("TWILIO_NUMBER"),
+            twiml=f"<Response><Say voice='alice' language='pt-BR'>{request.message}</Say></Response>"
+        )
+        return {"status": "ligando", "sid": call.sid}
+    except Exception as e:
+        return {"error": str(e)}
 
-# Servir o HTML diretamente na raiz
+# Serve a página HTML
 @app.get("/", include_in_schema=False)
 async def root():
     return FileResponse("static/valicaller_render.html")
 
-# Tornar a pasta 'static' acessível
+# Serve arquivos estáticos
 app.mount("/static", StaticFiles(directory="static"), name="static")
